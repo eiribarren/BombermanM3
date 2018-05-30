@@ -2,6 +2,8 @@ package Juego;
 
 import javax.swing.*;
 
+import Juego.Mapa.Casilla;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -11,26 +13,29 @@ import java.util.ArrayList;
 public class Jugador extends Sprite implements ActionListener, KeyListener {
 	
 	private String nombre;
-	private int posicionX = 0, posicionY = 0, velocidadX = 0, velocidadY = 0;
+	private int posicionX = 0, posicionY = 0, velocidad = 0;
 	private int indexFrame;
 	private int contadorFrames;
 	private int rango;
+	private int limite_bombas;
+	private int bombas_puestas;
 	private movimiento direccion;
 	
 	private enum movimiento {
 		arriba, abajo, derecha, izquierda, quieto
 	}
 
-	public Jugador(String nombre, int fila, int columna, int velocidadX, int velocidadY, ArrayList<String> urlFrames, int alto, int ancho) {
+	public Jugador(String nombre, int fila, int columna, int velocidad, ArrayList<String> urlFrames, int alto, int ancho) {
 		this.nombre = nombre;
 		this.posicionX = fila * alto;
 		this.posicionY = columna * ancho;
-		this.velocidadX = velocidadX;
-		this.velocidadY = velocidadY;
+		this.velocidad = velocidad;
 		this.rango = 2;
 		this.direccion = movimiento.quieto;
 		this.fila = fila;
 		this.columna = columna;
+		this.limite_bombas = 1;
+		this.bombas_puestas = 0;
 		cambiarTamano(alto,ancho,urlFrames);
 		addKeyListener(this);
 		setFocusable(true);
@@ -38,6 +43,14 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 		setVisible(true);
 	}
 	
+	public int getLimite_bombas() {
+		return limite_bombas;
+	}
+
+	public void setLimite_bombas(int limite_bombas) {
+		this.limite_bombas = limite_bombas;
+	}
+
 	public String getNombre() {
 		return nombre;
 	}
@@ -58,27 +71,19 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 		this.posicionY = posicionY;
 	}
 
-	public int getVelocidadX() {
-		return velocidadX;
+	public int getVelocidad() {
+		return velocidad;
 	}
 
-	public void setVelocidadX(int velocidadX) {
-		this.velocidadX = velocidadX;
-	}
-
-	public int getVelocidadY() {
-		return velocidadY;
-	}
-	
-	public void setVelocidadY(int velocidadY) {
-		this.velocidadY = velocidadY;
+	public void setVelocidad(int velocidad) {
+		this.velocidad = velocidad;
 	}
 	
 	public int getRango() {
 		return this.rango;
 	}
 	public boolean aumentarContadorFrames() {
-		this.contadorFrames++;
+		this.contadorFrames += this.velocidad;
 		if ( contadorFrames == 9 ) {
 			this.contadorFrames = 0;
 			this.direccion = movimiento.quieto;
@@ -108,7 +113,7 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 		}
 	}
 	public void moverArriba() {
-		this.setPosicionY(this.posicionY - this.velocidadY);
+		this.setPosicionY(this.posicionY - this.velocidad * 8);
 		if (aumentarContadorFrames()) {
 			indexFrame++;
 			if ( indexFrame > 5 || indexFrame < 3 ) {
@@ -121,7 +126,7 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 	}
 	
 	public void moverAbajo() {
-		this.setPosicionY(this.posicionY + this.velocidadY);
+		this.setPosicionY(this.posicionY + this.velocidad * 8);
 		if (aumentarContadorFrames()) {
 			indexFrame++;
 			if ( indexFrame > 2 || indexFrame < 0 ) {
@@ -134,7 +139,7 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 	}
 	
 	public void moverIzquierda() {
-		this.setPosicionX(this.posicionX - this.velocidadX);
+		this.setPosicionX(this.posicionX - this.velocidad * 8);
 		if (aumentarContadorFrames()) {
 			indexFrame++;
 			if ( indexFrame > 8 || indexFrame < 6 ) {
@@ -147,7 +152,7 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 	}
 	
 	public void moverDerecha() {
-		this.setPosicionX(this.posicionX + this.velocidadX);
+		this.setPosicionX(this.posicionX + this.velocidad * 8);
 		if (aumentarContadorFrames()) {
 			indexFrame++;
 			if ( indexFrame > 11 || indexFrame < 9) {
@@ -163,13 +168,26 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 		Partida.mapa.ponerObjeto(this.fila, this.columna, Mapa.objetos.BOMBA, this);
 	}
 	
+	public int getBombas_puestas() {
+		return this.bombas_puestas;
+	}
+	
+	public int getLimiteBombas() {
+		return this.limite_bombas;
+	}
+
+	public void setBombas_puestas(int bombas_puestas) {
+		this.bombas_puestas = bombas_puestas;
+	}
+
 	@Override
 	public void keyPressed(KeyEvent e) {
 		int tecla = e.getKeyCode();
 		if ( direccion == movimiento.quieto ) {
 			if ( tecla == KeyEvent.VK_UP ) {
-				if ( Partida.mapa.getCasilla(this.fila-1, this.columna) != null ) {
-					if ( !Partida.mapa.getCasilla(this.fila-1, this.columna).tieneObjeto() ) {
+				Casilla c = Partida.mapa.getCasilla(this.fila-1, this.columna);
+				if ( c != null ) {
+					if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
 						direccion = movimiento.arriba;
 						this.fila--;
 						moverArriba();	
@@ -177,8 +195,9 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 				}		
 			}
 			if ( tecla == KeyEvent.VK_DOWN ) {
-				if ( Partida.mapa.getCasilla(this.fila+1, this.columna) != null ) {
-					if ( !Partida.mapa.getCasilla(this.fila+1, this.columna).tieneObjeto() ) {
+				Casilla c = Partida.mapa.getCasilla(this.fila+1, this.columna);
+				if ( c != null ) {
+					if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
 						direccion = movimiento.abajo;
 						this.fila++;
 						moverAbajo();
@@ -186,8 +205,9 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 				}
 			}
 			if ( tecla == KeyEvent.VK_LEFT ) {
-				if ( Partida.mapa.getCasilla(this.fila, this.columna-1) != null ) {
-					if ( !Partida.mapa.getCasilla(this.fila, this.columna-1).tieneObjeto() ) {
+				Casilla c = Partida.mapa.getCasilla(this.fila, this.columna-1);
+				if ( c != null ) {
+					if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
 						direccion = movimiento.izquierda;
 						this.columna--;
 						moverIzquierda();
@@ -195,8 +215,9 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 				}
 			}
 			if ( tecla == KeyEvent.VK_RIGHT ) {
-				if ( Partida.mapa.getCasilla(this.fila, this.columna+1) != null ) {
-					if ( !Partida.mapa.getCasilla(this.fila, this.columna+1).tieneObjeto() ) {						
+				Casilla c = Partida.mapa.getCasilla(this.fila, this.columna+1);
+				if ( c != null ) {
+					if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {						
 						direccion = movimiento.derecha;
 						this.columna++;
 						moverDerecha();
@@ -210,7 +231,25 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 			}
 		}
 	}
-
+	
+	public void morir() {
+		
+	}
+	
+	public void ponerMejoras(Mejora m) {
+		switch(m.tipo) {
+			case SPEED_UP:
+				this.velocidad += 1;
+				break;
+			case BOMB_UP:
+				this.limite_bombas += 1;
+				break;
+			case RANGO_UP:
+				this.rango += 1;
+				break;
+		}
+	}
+	
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub

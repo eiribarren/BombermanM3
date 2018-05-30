@@ -14,10 +14,6 @@ public class Caja extends Sprite {
 		urlFrames.add("/Juego/caja.png");
 		this.cambiarTamano(ancho, altura, urlFrames);
 		this.setVisible(true);
-		this.ponerMejora();
-	}
-	public void ponerMejora() {
-		
 	}
 	public String toString() {
 		return "caja";

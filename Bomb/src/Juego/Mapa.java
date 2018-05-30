@@ -2,29 +2,27 @@ package Juego;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class Mapa extends JPanel implements KeyListener, ActionListener {
 	private int filas;
 	private int columnas;
-	private ArrayList<Jugador> jugadores;
-	private ArrayList<ArrayList<Casilla>> casillas;
-	private Timer timer;
+	private HashSet<Jugador> jugadores;
+	private HashMap<Integer, HashMap<Integer, Casilla>> casillas;
+	private Timer timer;	
 	
 	public enum objetos {
 		BOMBA, SPEED_UP, EXP_UP, CAJA, BLOQUE, EXPLOSION
@@ -33,24 +31,24 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 		this.timer = new Timer(100,this);
 		this.filas = filas;
 		this.columnas = columnas;
-		this.jugadores = new ArrayList<Jugador>();
-		this.casillas = new ArrayList<ArrayList<Casilla>>();
+		this.jugadores = new HashSet<Jugador>();
+		this.casillas = new HashMap<Integer, HashMap<Integer, Casilla>>();
 		JPanel mapa = new JPanel();
 		mapa.setVisible(true);
 		mapa.setLayout(new GridLayout(filas,columnas));
 		for ( int i = 0 ; i < this.getFilas() ; i++ ) {
-			ArrayList<Casilla> fila = new ArrayList<Casilla>();
+			casillas.put(i,new HashMap<Integer, Casilla>());
 			for ( int j = 0 ; j < this.getColumnas() ; j++ ) {
-				fila.add(new Casilla(i, j, ancho/columnas, alto/filas));
+				casillas.get(i).put(j,new Casilla(i, j, ancho/columnas, alto/filas));
 			}
-			this.casillas.add(fila);
 		}
-		for ( ArrayList<Casilla> fila_a : casillas ) {
-			for ( Casilla casilla : fila_a ) {
-				if ( casilla.getFila() == 0 || casilla.getFila() == this.filas - 1 || casilla.getColumna() == 0 || casilla.getColumna() == this.columnas - 1 ) {
-					casilla.ponerObjeto(new Bloque(casilla.getFila(),casilla.getColumna(),ancho/columnas,alto/filas));
+		for ( int i = 0 ; i < filas ; i++ ) {
+			for ( int j = 0 ; j < columnas ; j++ ) {
+				Casilla c = casillas.get(i).get(j);
+				if ( c.getFila() == 0 || c.getFila() == this.filas - 1 || c.getColumna() == 0 || c.getColumna() == this.columnas - 1 ) {
+					c.ponerObjeto(new Bloque(c.getFila(),c.getColumna(),ancho/columnas,alto/filas));
 				}
-				mapa.add(casilla);
+				mapa.add(c);
 			}
 		}	
 		this.add(mapa);
@@ -89,7 +87,7 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 		return null;
 	}
 	
-	public class Casilla extends JPanel implements ActionListener {
+	public class Casilla extends JPanel implements ActionListener, Comparable {
 		private int columna;
 		private int fila;
 		private BufferedImage imagen;
@@ -183,6 +181,24 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 			}
 			this.repaint();
 		}
+		@Override
+		public int compareTo(Object o) {
+			// TODO Auto-generated method stub
+			if ( o instanceof Casilla ) {
+				if ( this.getFila() > ((Casilla)o).getFila() ) {
+					return 1;
+				} else if ( this.getFila() < ((Casilla)o).getFila() ){
+					return -1;
+				} else {
+					if ( this.getColumna() > ((Casilla)o).getColumna() ) {
+						return 1;
+					} else if ( this.getColumna() < ((Casilla)o).getColumna()) {
+						return -1;
+					}
+				}
+			}
+			return 0;
+		}
 		
 	}
 
@@ -209,8 +225,24 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
+		Casilla c;
+		for ( Jugador j : jugadores ) {
+			if ( (c = casillas.get(j.getFila()).get(j.getColumna())).tieneObjeto() ) {
+				Sprite obj = c.getObjeto();
+				if ( obj instanceof Explosion) {
+					j.morir();
+				} else if ( obj instanceof Mejora ) {
+					c.quitarObjeto();
+					j.ponerMejoras((Mejora)obj);
+				}
+			}
+		}
 		jugadores.forEach(jugador -> jugador.actionPerformed(e));
-		casillas.forEach(fila -> fila.forEach(casilla -> casilla.actionPerformed(e)));
+		for ( int i = 0 ; i < filas ; i++ ) {
+			for ( int j = 0 ; j < columnas ; j++ ) {
+				casillas.get(i).get(j).actionPerformed(e);
+			}
+		}
 		this.repaint();
 	}
 	
@@ -251,43 +283,90 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 			Casilla c = casillas.get(fila).get(columna);
 			switch (objeto) {
 				case BOMBA:
-					c.ponerObjeto(new Bomba(fila, columna, c.getAlto(), c.getAncho(), ((Jugador) contexto).getRango()));
+					if ( ((Jugador)contexto).getLimiteBombas() > ((Jugador)contexto).getBombas_puestas() ) {
+						c.ponerObjeto(new Bomba(fila, columna, c.getAlto(), c.getAncho(), ((Jugador) contexto).getRango(),(Jugador)contexto));
+						((Jugador)contexto).setBombas_puestas(((Jugador)contexto).getBombas_puestas()+1);
+					}
 					break;
 				case CAJA:
 					c.ponerObjeto(new Caja(fila, columna, c.getAlto(), c.getAncho()));
 					break;
 				case EXPLOSION:
+					Jugador j = ((Bomba)contexto).getPropietario();
+					j.setBombas_puestas(j.getBombas_puestas()-1);
 					c.ponerObjeto(new Explosion(fila, columna, c.getAlto(), c.getAncho(),Explosion.tipo.CENTRAL));
+					Sprite auxiliar; 
+					boolean bloqueo_norte = false;
+					boolean bloqueo_sur = false;
+					boolean bloqueo_este = false;
+					boolean bloqueo_oeste = false;
 					for ( int i = 1 ; i < ((Bomba)contexto).getRango() ; i++ ) {
-						if ( fila + i < casillas.size()-2 ) {
-							c = casillas.get(fila+i).get(columna);
-							c.ponerObjeto(new Explosion(fila+i, columna, c.getAlto(), c.getAncho(), Explosion.tipo.VERTICAL));
+						if ( !bloqueo_sur ) { 
+						    if ( fila + i < casillas.size()-2 ) { 
+						        c = casillas.get(fila+i).get(columna); 
+						        auxiliar = c.ponerObjeto(new Explosion(fila+i, columna, c.getAlto(), c.getAncho(), Explosion.tipo.VERTICAL)); 
+						        bloqueo_sur = comprobarAuxiliar(auxiliar); 
+						    } else  if ( fila + i < casillas.get(i).size()-1 ) { 
+						        auxiliar = c.ponerObjeto(new Explosion(fila+i, columna, c.getAlto(), c.getAncho(), Explosion.tipo.AB_FINAL)); 
+						        bloqueo_sur = comprobarAuxiliar(auxiliar); 
+						    } 
+						} 
+						if ( !bloqueo_norte ) { 
+					        if ( fila - i > 1 ) { 
+					            c = casillas.get(fila-i).get(columna); 
+					            auxiliar = c.ponerObjeto(new Explosion(fila-i, columna, c.getAlto(), c.getAncho(), Explosion.tipo.VERTICAL)); 
+					            bloqueo_norte = comprobarAuxiliar(auxiliar); 
+					        } else if ( fila - i > 0 ) { 
+					            c = casillas.get(fila-i).get(columna); 
+					            auxiliar = c.ponerObjeto(new Explosion(fila-i, columna, c.getAlto(), c.getAncho(), Explosion.tipo.AR_FINAL)); 
+					            bloqueo_norte = comprobarAuxiliar(auxiliar); 
+					        } 
+					    } 
+					     
+					    if ( !bloqueo_este ) { 
+					        if ( columna + i < casillas.get(i).size()-2 ) { 
+					            c = casillas.get(fila).get(columna + i); 
+					            auxiliar = c.ponerObjeto(new Explosion(fila, columna +i, c.getAlto(), c.getAncho(), Explosion.tipo.HORIZONTAL)); 
+					            bloqueo_este = comprobarAuxiliar(auxiliar); 
+					        } else if ( columna + i < casillas.get(i).size()-1 ){ 
+					            c = casillas.get(fila).get(columna + i); 
+					            auxiliar = c.ponerObjeto(new Explosion(fila, columna + i, c.getAlto(), c.getAncho(), Explosion.tipo.D_FINAL)); 
+					            bloqueo_este = comprobarAuxiliar(auxiliar); 
+					        } 
+					    } 
+					     
+					    if ( !bloqueo_oeste ) { 
+					        if ( columna - i > 1 ) { 
+					            c = casillas.get(fila).get(columna - i); 
+					            auxiliar = c.ponerObjeto(new Explosion(fila, columna-i, c.getAlto(), c.getAncho(), Explosion.tipo.HORIZONTAL)); 
+					            bloqueo_oeste = comprobarAuxiliar(auxiliar); 
+					        } else if ( columna - i > 0 ) { 
+					            c = casillas.get(fila).get(columna - i); 
+					            auxiliar = c.ponerObjeto(new Explosion(fila, columna-i, c.getAlto(), c.getAncho(), Explosion.tipo.I_FINAL)); 
+					            bloqueo_oeste = comprobarAuxiliar(auxiliar); 
+					        } 
 						}
-						if ( fila - i > 1 ) {
-							c = casillas.get(fila-i).get(columna);
-							c.ponerObjeto(new Explosion(fila-i, columna, c.getAlto(), c.getAncho(), Explosion.tipo.VERTICAL));
-						}	
-						if ( columna + i < casillas.get(i).size()-2 ) {
-							c = casillas.get(fila).get(columna + i);
-							c.ponerObjeto(new Explosion(fila, columna +i, c.getAlto(), c.getAncho(), Explosion.tipo.HORIZONTAL));
-						}
-						if ( columna - i > 1 ) {
-							c = casillas.get(fila).get(columna - i);
-							c.ponerObjeto(new Explosion(fila, columna-i, c.getAlto(), c.getAncho(), Explosion.tipo.HORIZONTAL));
-						}
 					}
-					if ( fila + ((Bomba)contexto).getRango() < casillas.size() -1 ) {
-						casillas.get(fila + ((Bomba)contexto).getRango()).get(columna).ponerObjeto(new Explosion(fila+((Bomba)contexto).getRango(), columna, c.getAlto(), c.getAncho(), Explosion.tipo.AB_FINAL));
-					}
-					if ( fila - ((Bomba)contexto).getRango() > 0 ) {
-						casillas.get(fila - ((Bomba)contexto).getRango()).get(columna).ponerObjeto(new Explosion(fila-((Bomba)contexto).getRango(), columna, c.getAlto(), c.getAncho(), Explosion.tipo.AR_FINAL));
-					}
-					if ( columna + ((Bomba)contexto).getRango() < casillas.get(fila).size()-1 ) {
-						casillas.get(fila).get(columna + ((Bomba)contexto).getRango()).ponerObjeto(new Explosion(fila, columna+((Bomba)contexto).getRango(), c.getAlto(), c.getAncho(), Explosion.tipo.D_FINAL));
-					}
-					if ( columna - ((Bomba)contexto).getRango() > 0 ) {
-						casillas.get(fila).get(columna - ((Bomba)contexto).getRango()).ponerObjeto(new Explosion(fila, columna-((Bomba)contexto).getRango(), c.getAlto(), c.getAncho(), Explosion.tipo.I_FINAL));
-					}
+                    if ( !bloqueo_sur ) { 
+                        if ( fila + ((Bomba)contexto).getRango() < casillas.size() -1 ) { 
+                            casillas.get(fila + ((Bomba)contexto).getRango()).get(columna).ponerObjeto(new Explosion(fila+((Bomba)contexto).getRango(), columna, c.getAlto(), c.getAncho(), Explosion.tipo.AB_FINAL)); 
+                        } 
+                    } 
+                    if ( !bloqueo_norte ) { 
+                        if ( fila - ((Bomba)contexto).getRango() > 0 ) { 
+                            casillas.get(fila - ((Bomba)contexto).getRango()).get(columna).ponerObjeto(new Explosion(fila-((Bomba)contexto).getRango(), columna, c.getAlto(), c.getAncho(), Explosion.tipo.AR_FINAL)); 
+                        } 
+                    } 
+                    if ( !bloqueo_este ) { 
+                        if ( columna + ((Bomba)contexto).getRango() < casillas.get(fila).size()-1 ) { 
+                            casillas.get(fila).get(columna + ((Bomba)contexto).getRango()).ponerObjeto(new Explosion(fila, columna+((Bomba)contexto).getRango(), c.getAlto(), c.getAncho(), Explosion.tipo.D_FINAL)); 
+                        } 
+                    } 
+                    if ( !bloqueo_oeste ) { 
+                        if ( columna - ((Bomba)contexto).getRango() > 0 ) { 
+                            casillas.get(fila).get(columna - ((Bomba)contexto).getRango()).ponerObjeto(new Explosion(fila, columna-((Bomba)contexto).getRango(), c.getAlto(), c.getAncho(), Explosion.tipo.I_FINAL)); 
+                        } 
+                    } 
 					break;
 						
 				
@@ -300,4 +379,30 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 			e.printStackTrace();
 		}
 	}
+	
+	private boolean comprobarAuxiliar(Sprite auxiliar) { 
+        if ( auxiliar instanceof Caja ) { 
+        	Mejora.tipoMejora tipo;
+        	int rng = (int)(Math.random() * 10);
+        	switch(rng) {
+	        	case 0:
+	        		tipo = Mejora.tipoMejora.SPEED_UP;
+	        		break;
+	        	case 1:
+	        		tipo = Mejora.tipoMejora.RANGO_UP;
+	        		break;
+	        	case 2:
+	        		tipo = Mejora.tipoMejora.BOMB_UP;
+	        		break;
+	        	default:
+	        		return true;
+        	}
+            casillas.get(auxiliar.getFila()).get(auxiliar.getColumna()).quitarObjeto(); 
+            casillas.get(auxiliar.getFila()).get(auxiliar.getColumna()).ponerObjeto(new Mejora(auxiliar.getFila(),auxiliar.getColumna(),auxiliar.getAncho(), auxiliar.getAlto(), tipo)); 
+            return true; 
+        } else if ( auxiliar instanceof Bomba ) {
+        	((Bomba)auxiliar).explotar();
+        }
+        return false; 
+    } 
 }

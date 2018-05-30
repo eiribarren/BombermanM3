@@ -33,6 +33,21 @@ public abstract class Sprite extends JLabel implements ActionListener {
 		this.setFrameActual(frames.get(0)); 
 	}
 	
+	public int getFila() {
+		return fila;
+	}
+	public void setFila(int fila) {
+		this.fila = fila;
+	}
+
+	public int getColumna() {
+		return columna;
+	}
+
+	public void setColumna(int columna) {
+		this.columna = columna;
+	}
+
 	public int getPosicionX() {
 		return columna * ancho;
 	}
@@ -52,4 +67,22 @@ public abstract class Sprite extends JLabel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		
 	}
+
+	public int getAncho() {
+		return ancho;
+	}
+
+	public void setAncho(int ancho) {
+		this.ancho = ancho;
+	}
+
+	public int getAlto() {
+		return alto;
+	}
+
+	public void setAlto(int alto) {
+		this.alto = alto;
+	}
+	
+	
 }

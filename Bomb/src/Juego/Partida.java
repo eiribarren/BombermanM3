@@ -27,7 +27,7 @@ public class Partida{
 		for ( int i = 0 ; i < 12 ; i++ ) {
 			urlFrames.add( "/Juego/Sprites_Rojo/frame" + i + ".png");
 		}
-		Jugador j = new Jugador(nombreJugadores.get(0), 1, 1, 8, 8, urlFrames, 72, 72 );
+		Jugador j = new Jugador(nombreJugadores.get(0), 1, 1, 1, urlFrames, 72, 72 );
 		jugadores.add(j);
 		main.remove(menu);
 		mapa = new Mapa(10,10,720,720);
@@ -35,10 +35,10 @@ public class Partida{
 		ArrayList<String> mapeado = new ArrayList<String>();
 		mapeado.add("--------");
 		mapeado.add("--------");
-		mapeado.add("--C--C--");
+		mapeado.add("--CCCC--");
 		mapeado.add("--------");
-		mapeado.add("---C----");
-		mapeado.add("--------");
+		mapeado.add("---CCC--");
+		mapeado.add("--CCC---");
 		mapeado.add("--------");
 		mapeado.add("--------");
 		try {

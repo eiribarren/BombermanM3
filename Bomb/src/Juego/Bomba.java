@@ -9,7 +9,8 @@ import javax.swing.Timer;
 public class Bomba extends Sprite implements ActionListener{
 	private int contadorMecha;
 	private int rango;
-	public Bomba(int fila, int columna, int ancho, int alto, int rango) {
+	private Jugador propietario;
+	public Bomba(int fila, int columna, int ancho, int alto, int rango, Jugador propietario) {
 		this.indexFrame = 0;
 		this.contadorMecha = 30;
 		this.fila = fila;
@@ -17,6 +18,7 @@ public class Bomba extends Sprite implements ActionListener{
 		this.ancho = ancho;
 		this.alto = alto;
 		this.rango = rango;
+		this.propietario = propietario;
 		ArrayList<String> urlFrames = new ArrayList<String>();
 		for ( int i = 0 ; i < 2 ; i++ ) {
 			urlFrames.add("/Juego/Bomba/bomba" + i + ".png");
@@ -46,5 +48,9 @@ public class Bomba extends Sprite implements ActionListener{
 	
 	public int getRango() {
 		return this.rango;
+	}
+	
+	public Jugador getPropietario() {
+		return this.propietario;
 	}
 }
