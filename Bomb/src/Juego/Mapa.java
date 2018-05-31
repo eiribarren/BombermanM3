@@ -267,11 +267,11 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 				String fila = mapeado.get(i);
 				for ( int j = 0 ; j < fila.length() ; j++ ) {
 					if ( fila.charAt(j) == 'C' ) {
-						Casilla c = casillas.get(i).get(j);
-						c.ponerObjeto(new Caja(i,j,c.getAncho(),c.getAlto()));
+						Casilla c = casillas.get(i+1).get(j+1);
+						c.ponerObjeto(new Caja(i+1,j+1,c.getAncho(),c.getAlto()));
 					} else if ( fila.charAt(j) == 'B' ) {
-						Casilla c = casillas.get(i).get(j);
-						c.ponerObjeto(new Bloque(i,j,c.getAncho(),c.getAlto()));
+						Casilla c = casillas.get(i+1).get(j+1);
+						c.ponerObjeto(new Bloque(i+1,j+1,c.getAncho(),c.getAlto()));
 					}
 				}
 			}
@@ -306,7 +306,8 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 						        c = casillas.get(fila+i).get(columna); 
 						        auxiliar = c.ponerObjeto(new Explosion(fila+i, columna, c.getAlto(), c.getAncho(), Explosion.tipo.VERTICAL)); 
 						        bloqueo_sur = comprobarAuxiliar(auxiliar); 
-						    } else  if ( fila + i < casillas.get(i).size()-1 ) { 
+						    } else  if ( fila + i < casillas.size()-1 ) { 
+						    	c = casillas.get(fila+i).get(columna); 
 						        auxiliar = c.ponerObjeto(new Explosion(fila+i, columna, c.getAlto(), c.getAncho(), Explosion.tipo.AB_FINAL)); 
 						        bloqueo_sur = comprobarAuxiliar(auxiliar); 
 						    } 
@@ -385,9 +386,6 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
         	Mejora.tipoMejora tipo;
         	int rng = (int)(Math.random() * 10);
         	switch(rng) {
-	        	case 0:
-	        		tipo = Mejora.tipoMejora.SPEED_UP;
-	        		break;
 	        	case 1:
 	        		tipo = Mejora.tipoMejora.RANGO_UP;
 	        		break;

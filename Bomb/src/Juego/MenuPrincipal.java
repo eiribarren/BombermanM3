@@ -3,14 +3,14 @@ package Juego;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,10 +18,12 @@ import javax.swing.JTextField;
 
 public class MenuPrincipal extends JPanel {
 	private ArrayList<String> nombresJugadores;
+	private ArrayList<CapturaTecla> j1_teclas;
+	private ArrayList<CapturaTecla> j2_teclas;
 	
 	public MenuPrincipal(String titulo_text) {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		this.setPreferredSize(new Dimension(300,600));
+		this.setPreferredSize(new Dimension(600,600));
 		this.setAlignmentY(Component.CENTER_ALIGNMENT);
 		this.nombresJugadores = new ArrayList<String>();
 		JLabel titulo = new JLabel();
@@ -32,6 +34,120 @@ public class MenuPrincipal extends JPanel {
 		JTextField nombreJugador_textField = new JTextField();
 		JTextField nombreJugador2_textField = new JTextField();
 		JButton botonJugar = new JButton();
+		j1_teclas = new ArrayList<CapturaTecla>();
+		j2_teclas = new ArrayList<CapturaTecla>();
+		
+		JPanel controles = new JPanel();
+		
+		JPanel j1_controles = new JPanel();
+		
+		j1_controles.setLayout(new GridLayout(6,1));
+		
+		j1_controles.setSize(300,300);
+		
+		j1_controles.add(new JLabel("Controles jugador 1"));
+		JPanel j1_arriba = new JPanel();
+		JLabel j = new JLabel("Arriba");
+		j.setPreferredSize(new Dimension(100,20));
+		j1_arriba.add(j);
+		CapturaTecla ct = new CapturaTecla(KeyEvent.VK_W);
+		ct.addActionListener(ct);
+		j1_arriba.add(ct);
+		j1_teclas.add(ct);
+		j1_controles.add(j1_arriba);
+		JPanel j1_derecha = new JPanel();
+		j = new JLabel("Derecha");
+		j.setPreferredSize(new Dimension(100,20));
+		j1_derecha.add(j);
+		ct = new CapturaTecla(KeyEvent.VK_D);
+		ct.addActionListener(ct);
+		j1_teclas.add(ct);
+		j1_derecha.add(ct);
+		j1_controles.add(j1_derecha);
+		JPanel j1_izquierda = new JPanel();
+		j = new JLabel("Izquierda");
+		j.setPreferredSize(new Dimension(100,20));
+		j1_izquierda.add(j);
+		ct = new CapturaTecla(KeyEvent.VK_A);
+		ct.addActionListener(ct);
+		j1_teclas.add(ct);
+		j1_izquierda.add(ct);
+		j1_controles.add(j1_izquierda);
+		JPanel j1_abajo = new JPanel();
+		j = new JLabel("Abajo");
+		j.setPreferredSize(new Dimension(100,20));
+		j1_abajo.add(j);
+		ct = new CapturaTecla(KeyEvent.VK_S);
+		ct.addActionListener(ct);
+		j1_teclas.add(ct);
+		j1_abajo.add(ct);
+		j1_controles.add(j1_abajo);
+		JPanel j1_bomba = new JPanel();
+		j = new JLabel("Colocar bomba");
+		j.setPreferredSize(new Dimension(100,20));
+		j1_bomba.add(j);
+		ct = new CapturaTecla(KeyEvent.VK_SPACE);
+		ct.addActionListener(ct);
+		j1_teclas.add(ct);
+		j1_bomba.add(ct);
+		j1_controles.add(j1_bomba);
+		
+		JPanel j2_controles = new JPanel();
+		
+		j2_controles.setLayout(new GridLayout(6,1));
+		
+		j2_controles.setSize(300,300);
+		
+		j2_controles.add(new JLabel("Controles jugador 1"));
+		JPanel j2_arriba = new JPanel();
+		j = new JLabel("Arriba");
+		j.setPreferredSize(new Dimension(100,20));
+		j2_arriba.add(j);
+		ct = new CapturaTecla(KeyEvent.VK_UP);
+		ct.addActionListener(ct);
+		j2_arriba.add(ct);
+		j2_teclas.add(ct);
+		j2_controles.add(j2_arriba);
+		JPanel j2_derecha = new JPanel();
+		j = new JLabel("Derecha");
+		j.setPreferredSize(new Dimension(100,20));
+		j2_derecha.add(j);
+		ct = new CapturaTecla(KeyEvent.VK_RIGHT);
+		ct.addActionListener(ct);
+		j2_teclas.add(ct);
+		j2_derecha.add(ct);
+		j2_controles.add(j2_derecha);
+		JPanel j2_izquierda = new JPanel();
+		j = new JLabel("Izquierda");
+		j.setPreferredSize(new Dimension(100,20));
+		j2_izquierda.add(j);
+		ct = new CapturaTecla(KeyEvent.VK_LEFT);
+		ct.addActionListener(ct);
+		j2_teclas.add(ct);
+		j2_izquierda.add(ct);
+		j2_controles.add(j2_izquierda);
+		JPanel j2_abajo = new JPanel();
+		j = new JLabel("Abajo");
+		j.setPreferredSize(new Dimension(100,20));
+		j2_abajo.add(j);
+		ct = new CapturaTecla(KeyEvent.VK_DOWN);
+		ct.addActionListener(ct);
+		j2_teclas.add(ct);
+		j2_abajo.add(ct);
+		j2_controles.add(j2_abajo);
+		JPanel j2_bomba = new JPanel();
+		j = new JLabel("Colocar bomba");
+		j.setPreferredSize(new Dimension(100,20));
+		j2_bomba.add(j);
+		ct = new CapturaTecla(KeyEvent.VK_5);
+		ct.addActionListener(ct);
+		j2_teclas.add(ct);
+		j2_bomba.add(ct);
+		j2_controles.add(j2_bomba);
+		
+		
+		controles.add(j1_controles);
+		controles.add(j2_controles);
 		nombreJugador_textField.setPreferredSize(new Dimension(200,26));
 		nombreJugador_textField.setFont(new Font("Arial", Font.PLAIN, 25));
 		nombreJugador_textField.setMaximumSize(new Dimension(200,26));
@@ -76,6 +192,7 @@ public class MenuPrincipal extends JPanel {
 		this.add(Box.createVerticalStrut(10));
 		this.add(botonJugar);
 		this.add(error_label);
+		this.add(controles);
 		botonJugar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				boolean error_nombres_iguales = false;
@@ -103,5 +220,15 @@ public class MenuPrincipal extends JPanel {
 	
 	public ArrayList<String> getJugadores() {
 		return nombresJugadores;
+	}
+	
+	public ArrayList<CapturaTecla> getControles(int jugador) {
+		if ( jugador == 1 ) {
+			return j1_teclas;
+		} else if ( jugador == 2 ) {
+			return j2_teclas;
+		} else {
+			return null;
+		}
 	}
 }

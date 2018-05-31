@@ -19,13 +19,15 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 	private int rango;
 	private int limite_bombas;
 	private int bombas_puestas;
+	private boolean muerto;
 	private movimiento direccion;
+	private ArrayList<CapturaTecla> controles;
 	
 	private enum movimiento {
 		arriba, abajo, derecha, izquierda, quieto
 	}
 
-	public Jugador(String nombre, int fila, int columna, int velocidad, ArrayList<String> urlFrames, int alto, int ancho) {
+	public Jugador(String nombre, int fila, int columna, int velocidad, ArrayList<String> urlFrames, int alto, int ancho, ArrayList<CapturaTecla> controles) {
 		this.nombre = nombre;
 		this.posicionX = fila * alto;
 		this.posicionY = columna * ancho;
@@ -36,6 +38,7 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 		this.columna = columna;
 		this.limite_bombas = 1;
 		this.bombas_puestas = 0;
+		this.controles = controles;
 		cambiarTamano(alto,ancho,urlFrames);
 		addKeyListener(this);
 		setFocusable(true);
@@ -182,65 +185,70 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		int tecla = e.getKeyCode();
-		if ( direccion == movimiento.quieto ) {
-			if ( tecla == KeyEvent.VK_UP ) {
-				Casilla c = Partida.mapa.getCasilla(this.fila-1, this.columna);
-				if ( c != null ) {
-					if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
-						direccion = movimiento.arriba;
-						this.fila--;
-						moverArriba();	
-					}
-				}		
-			}
-			if ( tecla == KeyEvent.VK_DOWN ) {
-				Casilla c = Partida.mapa.getCasilla(this.fila+1, this.columna);
-				if ( c != null ) {
-					if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
-						direccion = movimiento.abajo;
-						this.fila++;
-						moverAbajo();
+		if ( !this.estaMuerto() ) {
+			int tecla = e.getKeyCode();
+			if ( direccion == movimiento.quieto ) {
+				if ( tecla == controles.get(0).getTecla() ) {
+					Casilla c = Partida.mapa.getCasilla(this.fila-1, this.columna);
+					if ( c != null ) {
+						if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
+							direccion = movimiento.arriba;
+							this.fila--;
+							moverArriba();	
+						}
+					}		
+				}
+				if ( tecla == controles.get(3).getTecla() ) {
+					Casilla c = Partida.mapa.getCasilla(this.fila+1, this.columna);
+					if ( c != null ) {
+						if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
+							direccion = movimiento.abajo;
+							this.fila++;
+							moverAbajo();
+						}
 					}
 				}
-			}
-			if ( tecla == KeyEvent.VK_LEFT ) {
-				Casilla c = Partida.mapa.getCasilla(this.fila, this.columna-1);
-				if ( c != null ) {
-					if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
-						direccion = movimiento.izquierda;
-						this.columna--;
-						moverIzquierda();
+				if ( tecla == controles.get(2).getTecla() ) {
+					Casilla c = Partida.mapa.getCasilla(this.fila, this.columna-1);
+					if ( c != null ) {
+						if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
+							direccion = movimiento.izquierda;
+							this.columna--;
+							moverIzquierda();
+						}
 					}
 				}
-			}
-			if ( tecla == KeyEvent.VK_RIGHT ) {
-				Casilla c = Partida.mapa.getCasilla(this.fila, this.columna+1);
-				if ( c != null ) {
-					if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {						
-						direccion = movimiento.derecha;
-						this.columna++;
-						moverDerecha();
+				if ( tecla == controles.get(1).getTecla() ) {
+					Casilla c = Partida.mapa.getCasilla(this.fila, this.columna+1);
+					if ( c != null ) {
+						if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {						
+							direccion = movimiento.derecha;
+							this.columna++;
+							moverDerecha();
+						}
 					}
 				}
-			}
-			if ( tecla == KeyEvent.VK_SPACE ) {
-				if ( !Partida.mapa.getCasilla(this.fila,this.columna).tieneObjeto() ) {
-					ponerBomba();
+				if ( tecla == controles.get(4).getTecla()) {
+					if ( !Partida.mapa.getCasilla(this.fila,this.columna).tieneObjeto() ) {
+						ponerBomba();
+					}
 				}
 			}
 		}
 	}
 	
 	public void morir() {
-		
+		this.muerto = true;
+		this.setFrameActual(frames.get(frames.size()-1));
+		this.direccion = movimiento.quieto;
+	}
+	
+	public boolean estaMuerto() {
+		return this.muerto;
 	}
 	
 	public void ponerMejoras(Mejora m) {
 		switch(m.tipo) {
-			case SPEED_UP:
-				this.velocidad += 1;
-				break;
 			case BOMB_UP:
 				this.limite_bombas += 1;
 				break;
