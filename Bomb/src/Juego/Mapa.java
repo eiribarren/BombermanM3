@@ -229,7 +229,7 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ( jugadoresMuertos.size() < jugadores.size() - 1) {
+		if ( jugadoresMuertos.size() < jugadores.size() - 1 ) {
 			Casilla c;
 			for ( Jugador j : jugadores ) {
 				if ( j.eliminar() ) {
