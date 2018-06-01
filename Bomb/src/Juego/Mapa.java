@@ -25,7 +25,7 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 	private Timer timer;	
 	
 	public enum objetos {
-		BOMBA, SPEED_UP, EXP_UP, CAJA, BLOQUE, EXPLOSION
+		BOMBA, CAJA, BLOQUE, EXPLOSION
 	}
 	public Mapa(int filas, int columnas, int ancho, int alto) {
 		this.timer = new Timer(100,this);
@@ -54,7 +54,6 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 		this.add(mapa);
 		this.addKeyListener(this);
 		setFocusable(true);
-		setFocusTraversalKeysEnabled(false);
 		timer.start();
 		this.setVisible(true);
 	}
@@ -227,6 +226,9 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 		// TODO Auto-generated method stub
 		Casilla c;
 		for ( Jugador j : jugadores ) {
+			if ( j.estaMuerto() ) {
+				
+			}
 			if ( (c = casillas.get(j.getFila()).get(j.getColumna())).tieneObjeto() ) {
 				Sprite obj = c.getObjeto();
 				if ( obj instanceof Explosion) {

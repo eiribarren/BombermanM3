@@ -139,7 +139,7 @@ public class MenuPrincipal extends JPanel {
 		j = new JLabel("Colocar bomba");
 		j.setPreferredSize(new Dimension(100,20));
 		j2_bomba.add(j);
-		ct = new CapturaTecla(KeyEvent.VK_5);
+		ct = new CapturaTecla(KeyEvent.VK_BEGIN);
 		ct.addActionListener(ct);
 		j2_teclas.add(ct);
 		j2_bomba.add(ct);

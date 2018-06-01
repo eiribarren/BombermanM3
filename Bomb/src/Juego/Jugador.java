@@ -122,6 +122,9 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 			if ( indexFrame > 5 || indexFrame < 3 ) {
 				indexFrame = 4;
 			}
+			if ( this.contadorFrames == 4 ) {
+				this.fila--;
+			}
 		} else {
 			indexFrame = 3;
 		}
@@ -134,6 +137,9 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 			indexFrame++;
 			if ( indexFrame > 2 || indexFrame < 0 ) {
 				indexFrame = 1;
+			}
+			if ( this.contadorFrames == 4 ) {
+				this.fila++;
 			}
 		} else {
 			indexFrame = 0;
@@ -148,6 +154,9 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 			if ( indexFrame > 8 || indexFrame < 6 ) {
 				indexFrame = 7;
 			}
+			if ( this.contadorFrames == 4 ) {
+				this.columna--;
+			}
 		} else {
 			indexFrame = 6;
 		}
@@ -160,6 +169,9 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 			indexFrame++;
 			if ( indexFrame > 11 || indexFrame < 9) {
 				indexFrame = 10;
+			}
+			if ( this.contadorFrames == 4 ) {
+				this.columna++;
 			}
 		} else {
 			indexFrame = 9;
@@ -193,7 +205,6 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 					if ( c != null ) {
 						if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
 							direccion = movimiento.arriba;
-							this.fila--;
 							moverArriba();	
 						}
 					}		
@@ -203,7 +214,6 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 					if ( c != null ) {
 						if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
 							direccion = movimiento.abajo;
-							this.fila++;
 							moverAbajo();
 						}
 					}
@@ -213,7 +223,6 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 					if ( c != null ) {
 						if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {
 							direccion = movimiento.izquierda;
-							this.columna--;
 							moverIzquierda();
 						}
 					}
@@ -223,7 +232,6 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 					if ( c != null ) {
 						if ( !c.tieneObjeto() || c.getObjeto() instanceof Explosion || c.getObjeto() instanceof Mejora ) {						
 							direccion = movimiento.derecha;
-							this.columna++;
 							moverDerecha();
 						}
 					}

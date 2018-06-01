@@ -12,7 +12,7 @@ public class Bomba extends Sprite implements ActionListener{
 	private Jugador propietario;
 	public Bomba(int fila, int columna, int ancho, int alto, int rango, Jugador propietario) {
 		this.indexFrame = 0;
-		this.contadorMecha = 30;
+		this.contadorMecha = 20;
 		this.fila = fila;
 		this.columna = columna;
 		this.ancho = ancho;
