@@ -1,8 +1,15 @@
 package Juego;
 
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class Partida{
@@ -12,8 +19,16 @@ public class Partida{
 	static ArrayList<String> nombreJugadores;
 	
 	public static void main ( String[] args ) {
+		nuevo();
+	}
+	
+	public static void nuevo() {
 		main = new JFrame();
 		menu = new MenuPrincipal("Bomb");
+		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		main.setMinimumSize(new Dimension(730,760));
+		main.setPreferredSize(new Dimension(730,760));
+		main.setMaximumSize(new Dimension(730,760));
 		main.add(menu);
 		main.setVisible(true);
 		main.pack(); 
@@ -54,11 +69,38 @@ public class Partida{
 		} catch ( Exception e ) {
 			e.printStackTrace();
 		}
-		main.setMinimumSize(new Dimension(730,760));
-		main.setPreferredSize(new Dimension(730,760));
-		main.setMaximumSize(new Dimension(730,760));
 		main.add(mapa);
 		main.setResizable(false);
 		main.pack(); 
+	}
+	
+	public static void acabar(Jugador ganador) {
+		JPanel fin = new JPanel();
+		JLabel fin_text = new JLabel();
+		JButton reiniciar = new JButton();
+		
+		try {
+			fin_text.setText("El jugador " + ganador.getNombre() + " ha ganado.");
+			fin_text.setFont(new Font("serif", Font.PLAIN, 50));
+		} catch ( NullPointerException e ) {
+			e.printStackTrace();
+		}
+		
+		reiniciar.setText("Volver a jugar");
+		reiniciar.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				main.dispose();
+				nuevo();				
+			}
+			
+		});
+		fin.add(Box.createVerticalStrut(500));
+		fin.add(fin_text);
+		fin.add(reiniciar);
+		main.remove(mapa);
+		main.add(fin);
+		main.pack();
 	}
 }

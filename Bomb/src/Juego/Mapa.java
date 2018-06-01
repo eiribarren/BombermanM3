@@ -23,6 +23,7 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 	private HashSet<Jugador> jugadores;
 	private HashMap<Integer, HashMap<Integer, Casilla>> casillas;
 	private Timer timer;	
+	private HashSet<Jugador> jugadoresMuertos;
 	
 	public enum objetos {
 		BOMBA, CAJA, BLOQUE, EXPLOSION
@@ -33,6 +34,7 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 		this.columnas = columnas;
 		this.jugadores = new HashSet<Jugador>();
 		this.casillas = new HashMap<Integer, HashMap<Integer, Casilla>>();
+		this.jugadoresMuertos = new HashSet<Jugador>();
 		JPanel mapa = new JPanel();
 		mapa.setVisible(true);
 		mapa.setLayout(new GridLayout(filas,columnas));
@@ -68,7 +70,11 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 	
 	public void paint(Graphics g) {
 		super.paint(g);
-		jugadores.forEach( jugador -> jugador.getFrameActual().paintIcon(this, g, jugador.getPosicionX(), jugador.getPosicionY()) );
+		for ( Jugador jugador : jugadores ) {
+			if (!jugador.eliminar()) {
+				jugador.getFrameActual().paintIcon(this, g, jugador.getPosicionX(), jugador.getPosicionY());
+			}
+		}
 		g.dispose();
 	}
 	
@@ -227,7 +233,19 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 		Casilla c;
 		for ( Jugador j : jugadores ) {
 			if ( j.estaMuerto() ) {
-				
+				if ( !jugadoresMuertos.contains(j) ) {
+					jugadoresMuertos.add(j);
+				}
+				if ( jugadoresMuertos.size() == jugadores.size() -1 ) {
+					Jugador ganador = null;
+					for ( Jugador jug : jugadores ) {
+						if ( !jug.estaMuerto() ) {
+							ganador = jug;
+						}
+					}
+					jugadores.forEach((jug) -> jug.parar());
+					Partida.acabar(ganador);
+				}
 			}
 			if ( (c = casillas.get(j.getFila()).get(j.getColumna())).tieneObjeto() ) {
 				Sprite obj = c.getObjeto();

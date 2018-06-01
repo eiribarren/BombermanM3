@@ -20,6 +20,7 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 	private int limite_bombas;
 	private int bombas_puestas;
 	private boolean muerto;
+	private boolean eliminar;
 	private movimiento direccion;
 	private ArrayList<CapturaTecla> controles;
 	
@@ -39,6 +40,7 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 		this.limite_bombas = 1;
 		this.bombas_puestas = 0;
 		this.controles = controles;
+		this.eliminar = false;
 		cambiarTamano(alto,ancho,urlFrames);
 		addKeyListener(this);
 		setFocusable(true);
@@ -98,6 +100,11 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
+		if ( this.estaMuerto() ) {
+			if (!aumentarContadorFrames()) {
+				this.eliminar = true;
+			}
+		}
 		if ( this.direccion != movimiento.quieto ) {
 			switch(direccion) {
 				case arriba:
@@ -242,7 +249,7 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 					}
 				}
 			}
-		}
+		} 
 	}
 	
 	public void morir() {
@@ -266,6 +273,10 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 		}
 	}
 	
+	public void parar() {
+		this.muerto = true;
+	}
+	
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
@@ -278,4 +289,7 @@ public class Jugador extends Sprite implements ActionListener, KeyListener {
 		
 	}
 	
+	public boolean eliminar() {
+		return this.eliminar;
+	}
 }

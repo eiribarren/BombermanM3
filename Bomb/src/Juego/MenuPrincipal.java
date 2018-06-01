@@ -195,23 +195,15 @@ public class MenuPrincipal extends JPanel {
 		this.add(controles);
 		botonJugar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				boolean error_nombres_iguales = false;
 				getJugadores().add(nombreJugador_textField.getText());
 				getJugadores().add(nombreJugador2_textField.getText());
-				for ( int i = 0 ; i < getJugadores().size() ; i++ ) {
-					for ( int j = 0 ; j < getJugadores().size() ; j++ ) {
-						if ( i == j ) {
-							continue;
-						}
-						if ( getJugadores().get(i).equals(getJugadores().get(j)) ) {
-							error_nombres_iguales = true;
-						}
-					}
-				}
-				if ( error_nombres_iguales ) {
-					error_label.setText("Los nombres de los jugadores deben ser diferentes");
-				} else {
+				try {
+					comprobarDatos();
 					Partida.comenzar();
+				} catch ( NombresIgualesException e ) {
+					error_label.setText(e.getMessage());
+				} catch ( TeclaDesconocidaException e) {
+					error_label.setText(e.getMessage());
 				}
 			}
 		});
@@ -229,6 +221,32 @@ public class MenuPrincipal extends JPanel {
 			return j2_teclas;
 		} else {
 			return null;
+		}
+	}
+	
+	public void comprobarDatos() throws NombresIgualesException, TeclaDesconocidaException {
+		for ( int i = 0 ; i < getJugadores().size() ; i++ ) {
+			for ( int j = 0 ; j < getJugadores().size() ; j++ ) {
+				if ( i == j ) {
+					continue;
+				}
+				if ( getJugadores().get(i).equals(getJugadores().get(j)) ) {
+					throw new NombresIgualesException();
+				}
+			}
+		}
+		String t;
+		for ( CapturaTecla j1_tecla : j1_teclas ) {
+			t = j1_tecla.getText().split(" ")[0];
+			if ( t.equals("Unknown") ) {
+				throw new TeclaDesconocidaException();
+			}
+		}
+		for ( CapturaTecla j2_tecla : j2_teclas ) {
+			t = j2_tecla.getText().split(" ")[0];
+			if ( t.equals("Unknown") ) {
+				throw new TeclaDesconocidaException();
+			}
 		}
 	}
 }
