@@ -229,38 +229,40 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		Casilla c;
-		for ( Jugador j : jugadores ) {
-			if ( j.estaMuerto() ) {
-				if ( !jugadoresMuertos.contains(j) ) {
-					jugadoresMuertos.add(j);
-				}
-				if ( jugadoresMuertos.size() == jugadores.size() -1 ) {
-					Jugador ganador = null;
-					for ( Jugador jug : jugadores ) {
-						if ( !jug.estaMuerto() ) {
-							ganador = jug;
-						}
+		if ( jugadoresMuertos.size() < jugadores.size() - 1) {
+			Casilla c;
+			for ( Jugador j : jugadores ) {
+				if ( j.eliminar() ) {
+					if ( !jugadoresMuertos.contains(j) ) {
+						jugadoresMuertos.add(j);
 					}
-					jugadores.forEach((jug) -> jug.parar());
-					Partida.acabar(ganador);
+					if ( jugadoresMuertos.size() == jugadores.size() -1 ) {
+						Jugador ganador = null;
+						for ( Jugador jug : jugadores ) {
+							if ( !jug.estaMuerto() ) {
+								ganador = jug;
+								break;
+							}
+						}
+						Partida.acabar(ganador);
+						break;
+					}
+				}
+				if ( (c = casillas.get(j.getFila()).get(j.getColumna())).tieneObjeto() ) {
+					Sprite obj = c.getObjeto();
+					if ( obj instanceof Explosion) {
+						j.morir();
+					} else if ( obj instanceof Mejora ) {
+						c.quitarObjeto();
+						j.ponerMejoras((Mejora)obj);
+					}
 				}
 			}
-			if ( (c = casillas.get(j.getFila()).get(j.getColumna())).tieneObjeto() ) {
-				Sprite obj = c.getObjeto();
-				if ( obj instanceof Explosion) {
-					j.morir();
-				} else if ( obj instanceof Mejora ) {
-					c.quitarObjeto();
-					j.ponerMejoras((Mejora)obj);
+			jugadores.forEach(jugador -> jugador.actionPerformed(e));
+			for ( int i = 0 ; i < filas ; i++ ) {
+				for ( int j = 0 ; j < columnas ; j++ ) {
+					casillas.get(i).get(j).actionPerformed(e);
 				}
-			}
-		}
-		jugadores.forEach(jugador -> jugador.actionPerformed(e));
-		for ( int i = 0 ; i < filas ; i++ ) {
-			for ( int j = 0 ; j < columnas ; j++ ) {
-				casillas.get(i).get(j).actionPerformed(e);
 			}
 		}
 		this.repaint();
@@ -404,7 +406,7 @@ public class Mapa extends JPanel implements KeyListener, ActionListener {
 	private boolean comprobarAuxiliar(Sprite auxiliar) { 
         if ( auxiliar instanceof Caja ) { 
         	Mejora.tipoMejora tipo;
-        	int rng = (int)(Math.random() * 10);
+        	int rng = (int)(Math.random() * 5);
         	switch(rng) {
 	        	case 1:
 	        		tipo = Mejora.tipoMejora.RANGO_UP;
